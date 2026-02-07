@@ -254,12 +254,15 @@ def render_rate_period_editor(
     """Render an editor for rate periods as a compact table. Modifies session state in place."""
     periods = st.session_state[periods_key]
 
+    # Include sched_version in widget keys so they reset after import
+    ver = st.session_state.get("sched_version", 1)
+
     num = st.number_input(
         "Number of Rate Periods",
         min_value=min_periods,
         max_value=max_periods,
         value=len(periods),
-        key=f"{prefix}_num_periods",
+        key=f"{prefix}_num_periods_v{ver}",
         help="Number of TOU periods (e.g., Off-Peak, Mid-Peak, On-Peak)",
     )
 
@@ -290,12 +293,14 @@ def render_rate_period_editor(
             )
         with c1:
             p["label"] = st.text_input(
-                "Label", value=p["label"], key=f"{prefix}_lbl_{idx}",
+                "Label", value=p["label"],
+                key=f"{prefix}_lbl_{idx}_v{ver}",
                 label_visibility="collapsed",
             )
         with c2:
             rate_str = st.text_input(
-                "Base Rate", value=f"{p['rate']:.4f}", key=f"{prefix}_rate_{idx}",
+                "Base Rate", value=f"{p['rate']:.4f}",
+                key=f"{prefix}_rate_{idx}_v{ver}",
                 label_visibility="collapsed",
             )
             try:
@@ -304,7 +309,8 @@ def render_rate_period_editor(
                 st.error("Invalid number")
         with c3:
             adj_str = st.text_input(
-                "Adjustment", value=f"{p['adj']:.4f}", key=f"{prefix}_adj_{idx}",
+                "Adjustment", value=f"{p['adj']:.4f}",
+                key=f"{prefix}_adj_{idx}_v{ver}",
                 label_visibility="collapsed",
             )
             try:
