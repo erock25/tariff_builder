@@ -28,6 +28,19 @@ def import_tariff_data(raw: Dict) -> None:
     # Increment version so grids re-initialize from session state
     st.session_state.sched_version = st.session_state.get("sched_version", 0) + 1
 
+    # Clear stale widget keys so text inputs pick up fresh imported values
+    # (Streamlit caches widget values by key; without clearing, period 0's
+    # inputs would still show values from the previous session.)
+    for prefix in ("energy", "demand", "flat"):
+        for idx in range(12):
+            for suffix in (f"_lbl_{idx}", f"_rate_{idx}", f"_adj_{idx}"):
+                key = prefix + suffix
+                if key in st.session_state:
+                    del st.session_state[key]
+        num_key = f"{prefix}_num_periods"
+        if num_key in st.session_state:
+            del st.session_state[num_key]
+
     # Basic info
     st.session_state.basic_utility = t.get("utility", "")
     st.session_state.basic_name = t.get("name", "")
